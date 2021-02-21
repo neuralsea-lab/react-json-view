@@ -1,5 +1,5 @@
 const path = require('path');
-const webpack = require('webpack');
+// const webpack = require('webpack');
 
 const PATHS = {
     src: path.join(__dirname, '..', 'src'),
@@ -29,20 +29,16 @@ const config = {
         extensions: ['.js', '.json', '.css', '.scss']
     },
     module: {
-        rules: [
-            {
+        rules: [{
                 test: /\.jsx?$/,
-                use: [
-                    {
-                        loader: 'babel-loader'
-                    }
-                ],
+                use: [{
+                    loader: 'babel-loader'
+                }],
                 include: [PATHS.js, PATHS.demo]
             },
             {
                 test: /\.s?css$/,
-                use: [
-                    {
+                use: [{
                         loader: 'style-loader'
                     },
                     {

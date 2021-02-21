@@ -1,8 +1,6 @@
-import register from 'ignore-styles';
-register(['.sass', '.scss']);
 import './../../src/js/index';
 
-import Adapter from 'enzyme-adapter-react-16';
+import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
 import { configure } from 'enzyme';
 import jsdom from 'jsdom';
 
@@ -10,7 +8,7 @@ import jsdom from 'jsdom';
 function setUpDomEnvironment() {
     const { JSDOM } = jsdom;
     const dom = new JSDOM('<!doctype html><html><body></body></html>');
-    const { window } = dom;
+    const { window, global } = dom;
 
     global.window = window;
     global.document = window.document;
@@ -28,5 +26,5 @@ function copyProps(src, target) {
 }
 
 setUpDomEnvironment();
-
+// eslint-disable-next-line prettier/prettier
 configure({ adapter: new Adapter() });

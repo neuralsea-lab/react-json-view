@@ -1,6 +1,20 @@
 {
-  "presets": ["react-app"],
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "useBuiltIns": "usage",
+        "corejs":{ "version": "3.9", "proposals": true },
+        "targets": {
+          "esmodules": true
+        }
+      }
+    ],
+    "@babel/preset-react",
+    "@babel/preset-flow"
+  ],
   "plugins": [
+    "@babel/plugin-proposal-class-properties",
     "@babel/plugin-syntax-class-properties",
     "@babel/plugin-syntax-jsx",
     "react-html-attrs"

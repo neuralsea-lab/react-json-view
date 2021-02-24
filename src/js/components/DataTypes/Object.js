@@ -19,12 +19,42 @@ import { CollapsedIcon, ExpandedIcon } from './../ToggleIcons';
 //theme
 import Theme from './../../themes/getStyle';
 
+import { DragSource, DropTarget, useDrop } from 'react-dnd';
+
 //increment 1 with each nested object & array
 const DEPTH_INCREMENT = 1;
 //single indent is 5px
 const SINGLE_INDENT = 5;
 
-class RjvObject extends React.PureComponent {
+const Types = {
+    ITEM: 'JsonObject'
+}
+
+const source = {
+    beginDrag(props) {
+        /* code here */
+    },
+    endDrag(props) {
+        /* code here */
+    }
+}
+
+function target(props) {
+    const [collectedProps, drop] = useDrop(() => ({
+        accept
+    }))
+
+    return <div ref={drop}>Drop Target</div>
+}
+
+// function collect(connect, monitor) {
+//     return {
+//         connectDragSource: connect.dragSource(),
+//         isDragging: monitor.isDragging()
+//     }
+// }
+
+class RjvObject extends React.Component {
     constructor(props) {
         super(props);
         const state = RjvObject.getState(props);
@@ -190,6 +220,8 @@ class RjvObject extends React.PureComponent {
             theme,
             jsvRoot,
             iconStyle,
+            isDragging,
+            connectDragSource,
             ...rest
         } = this.props;
 
@@ -203,7 +235,9 @@ class RjvObject extends React.PureComponent {
             styles.display = 'inline';
         }
 
-        return (
+        // const { isDragging, connectDragSource, src } = this.props;
+
+        return connectDragSource(
             <div
                 class="object-key-val"
                 onMouseEnter={() =>
@@ -217,10 +251,10 @@ class RjvObject extends React.PureComponent {
                 {this.getBraceStart(object_type, expanded)}
                 {expanded
                     ? this.getObjectContent(depth, src, {
-                          theme,
-                          iconStyle,
-                          ...rest
-                      })
+                        theme,
+                        iconStyle,
+                        ...rest
+                    })
                     : this.getEllipsis()}
                 <span class="brace-row">
                     <span
@@ -233,7 +267,8 @@ class RjvObject extends React.PureComponent {
                     </span>
                     {expanded ? null : this.getObjectMetaData(src)}
                 </span>
-            </div>
+            </div>,
+            { dropEffect: 'move' }
         );
     }
 
@@ -324,5 +359,15 @@ class JsonVariable {
 
 polyfill(RjvObject);
 
-//export component
-export default RjvObject;
+/*
+
+DropTarget(Types.ITEM, target, connect => ({
+    connectDropTarget: connect.dropTarget(),
+}))(RjvObject);
+
+*/
+
+export default DragSource(Types.ITEM, source, (connect, monitor) => ({
+    connectDragSource: connect.dragSource(),
+    isDragging: monitor.isDragging()
+}))(RjvObject);

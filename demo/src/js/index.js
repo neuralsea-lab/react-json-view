@@ -5,10 +5,11 @@ import ReactJsonDemo from './components/Demo';
 export default class extends React.PureComponent {
 
     render() {
-        const {...props} = this.state;
-        return (<div class="mac-react" >
-            <ReactJsonDemo />
-        </div>);
+        const { ...props } = this.state;
+        return (
+            <div class="mac-react" >
+                <ReactJsonDemo />
+            </div>)
     }
 
 }

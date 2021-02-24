@@ -6,11 +6,15 @@ import ValidationFailure from './components/ValidationFailure';
 import { toType, isTheme } from './helpers/util';
 import ObjectAttributes from './stores/ObjectAttributes';
 
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { DndProvider } from 'react-dnd';
+
+
 //global theme
 import Theme from './themes/getStyle';
 
 //forward src through to JsonObject component
-class ReactJsonView extends React.PureComponent {
+class ReactJsonView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -171,31 +175,33 @@ class ReactJsonView extends React.PureComponent {
         const { style, defaultValue } = this.props;
 
         return (
-            <div
-                class="react-json-view"
-                style={{ ...Theme(theme, 'app-container').style, ...style }}
-            >
-                <ValidationFailure
-                    message={validationMessage}
-                    active={validationFailure}
-                    theme={theme}
-                    rjvId={this.rjvId}
-                />
-                <JsonViewer
-                    {...this.props}
-                    src={src}
-                    name={name}
-                    theme={theme}
-                    type={toType(src)}
-                    rjvId={this.rjvId}
-                />
-                <AddKeyRequest
-                    active={addKeyRequest}
-                    theme={theme}
-                    rjvId={this.rjvId}
-                    defaultValue={defaultValue}
-                />
-            </div>
+            <DndProvider backend={HTML5Backend}>
+                <div
+                    class="react-json-view"
+                    style={{ ...Theme(theme, 'app-container').style, ...style }}
+                >
+                    <ValidationFailure
+                        message={validationMessage}
+                        active={validationFailure}
+                        theme={theme}
+                        rjvId={this.rjvId}
+                    />
+                    <JsonViewer
+                        {...this.props}
+                        src={src}
+                        name={name}
+                        theme={theme}
+                        type={toType(src)}
+                        rjvId={this.rjvId}
+                    />
+                    <AddKeyRequest
+                        active={addKeyRequest}
+                        theme={theme}
+                        rjvId={this.rjvId}
+                        defaultValue={defaultValue}
+                    />
+                </div>
+            </DndProvider>
         );
     }
 

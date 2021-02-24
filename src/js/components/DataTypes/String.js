@@ -8,7 +8,22 @@ import Theme from './../../themes/getStyle';
 //attribute store for storing collapsed state
 import AttributeStore from './../../stores/ObjectAttributes';
 
-export default class extends React.PureComponent {
+import { DragSource, DropTarget, useDrop } from 'react-dnd';
+
+const Types = {
+    ITEM: 'JsonString'
+}
+
+const source = {
+    beginDrag(props) {
+        /* code here */
+    },
+    endDrag(props) {
+        /* code here */
+    }
+}
+
+class String extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -72,3 +87,8 @@ export default class extends React.PureComponent {
         );
     }
 }
+
+export default DragSource(Types.ITEM, source, (connect, monitor) => ({
+    connectDragSource: connect.dragSource(),
+    isDragging: monitor.isDragging()
+}))(String);

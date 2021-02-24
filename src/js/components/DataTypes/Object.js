@@ -27,7 +27,7 @@ const DEPTH_INCREMENT = 1;
 const SINGLE_INDENT = 5;
 
 const Types = {
-    ITEM: 'JsonObject'
+    ITEM: 'RjvObject'
 }
 
 const source = {
@@ -39,13 +39,19 @@ const source = {
     }
 }
 
-function target(props) {
-    const [collectedProps, drop] = useDrop(() => ({
-        accept
-    }))
-
-    return <div ref={drop}>Drop Target</div>
+const spec = {
+    drop() {
+        return { name: 'RjvObject' }
+    }
 }
+
+// function target(props) {
+//     const [collectedProps, drop] = useDrop(() => ({
+//         accept
+//     }))
+
+//     return <div ref={drop}>Drop Target</div>
+// }
 
 // function collect(connect, monitor) {
 //     return {
@@ -360,11 +366,11 @@ class JsonVariable {
 polyfill(RjvObject);
 
 /*
+https://react-dnd.github.io/react-dnd/docs/api/drop-target
 
-DropTarget(Types.ITEM, target, connect => ({
+DropTarget(Types.ITEM, spec, connect => ({
     connectDropTarget: connect.dropTarget(),
 }))(RjvObject);
-
 */
 
 export default DragSource(Types.ITEM, source, (connect, monitor) => ({

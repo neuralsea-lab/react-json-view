@@ -389,7 +389,7 @@ DropTarget(Types.ITEM, spec, connect => ({
 /* get dragged */
 const sourceSpec = {
     beginDrag(props) {
-        return { val: props.value }; // Excel Address
+        return { val: props.name, src: props.src }; // Excel Address
     }
 };
 
@@ -404,7 +404,8 @@ const sourceCollect = (connect, monitor) => {
 const targetSpec = {
     drop(props, monitor, component) {
         const item = monitor.getItem();
-        console.log('me or my friend?', item);
+        console.log(component);
+        console.log('me or my friend?', item); // TODO reparent
     },
     hover(props, monitor, component) {
         console.log('yo what you hoverin there for homie?');

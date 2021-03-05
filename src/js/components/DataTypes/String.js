@@ -12,7 +12,7 @@ import { DragSource, DropTarget, useDrop } from 'react-dnd';
 
 const Types = {
     ITEM: 'JsonString'
-}
+};
 
 const source = {
     beginDrag(props) {
@@ -21,7 +21,7 @@ const source = {
     endDrag(props) {
         /* code here */
     }
-}
+};
 
 class String extends React.Component {
     constructor(props) {

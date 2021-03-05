@@ -42,11 +42,13 @@ const config = {
         extensions: ['.js', '.json', '.css', '.scss']
     },
     module: {
-        rules: [{
-            test: /\.jsx?$/,
-            use: [{ loader: 'babel-loader' }],
-            include: [PATHS.js]
-        }]
+        rules: [
+            {
+                test: /\.jsx?$/,
+                use: [{ loader: 'babel-loader' }],
+                include: [PATHS.js]
+            }
+        ]
     }
 };
 

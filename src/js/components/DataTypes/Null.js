@@ -8,5 +8,3 @@ export default class extends React.Component {
         return <div {...Theme(this.props.theme, 'null')}>NULL</div>;
     }
 }
-
-

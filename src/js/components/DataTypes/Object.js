@@ -19,7 +19,8 @@ import { CollapsedIcon, ExpandedIcon } from './../ToggleIcons';
 //theme
 import Theme from './../../themes/getStyle';
 
-import { DragSource, DropTarget, useDrop } from 'react-dnd';
+import { DragSource, DropTarget } from 'react-dnd';
+import _ from 'lodash';
 
 //increment 1 with each nested object & array
 const DEPTH_INCREMENT = 1;
@@ -27,8 +28,8 @@ const DEPTH_INCREMENT = 1;
 const SINGLE_INDENT = 5;
 
 const Types = {
-    ITEM: 'RjvObject'
-}
+    OBJECT: 'RjvObject'
+};
 
 const source = {
     beginDrag(props) {
@@ -37,13 +38,13 @@ const source = {
     endDrag(props) {
         /* code here */
     }
-}
+};
 
 const spec = {
     drop() {
-        return { name: 'RjvObject' }
+        return { name: 'RjvObject' };
     }
-}
+};
 
 // function target(props) {
 //     const [collectedProps, drop] = useDrop(() => ({
@@ -228,6 +229,7 @@ class RjvObject extends React.Component {
             iconStyle,
             isDragging,
             connectDragSource,
+            connectDropTarget,
             ...rest
         } = this.props;
 
@@ -243,37 +245,43 @@ class RjvObject extends React.Component {
 
         // const { isDragging, connectDragSource, src } = this.props;
 
-        return connectDragSource(
-            <div
-                class="object-key-val"
-                onMouseEnter={() =>
-                    this.setState({ ...this.state, hovered: true })
-                }
-                onMouseLeave={() =>
-                    this.setState({ ...this.state, hovered: false })
-                }
-                {...Theme(theme, jsvRoot ? 'jsv-root' : 'objectKeyVal', styles)}
-            >
-                {this.getBraceStart(object_type, expanded)}
-                {expanded
-                    ? this.getObjectContent(depth, src, {
+        return connectDropTarget(
+            connectDragSource(
+                <div
+                    class="object-key-val"
+                    onMouseEnter={() =>
+                        this.setState({ ...this.state, hovered: true })
+                    }
+                    onMouseLeave={() =>
+                        this.setState({ ...this.state, hovered: false })
+                    }
+                    {...Theme(
                         theme,
-                        iconStyle,
-                        ...rest
-                    })
-                    : this.getEllipsis()}
-                <span class="brace-row">
-                    <span
-                        style={{
-                            ...Theme(theme, 'brace').style,
-                            paddingLeft: expanded ? '3px' : '0px'
-                        }}
-                    >
-                        {object_type === 'array' ? ']' : '}'}
+                        jsvRoot ? 'jsv-root' : 'objectKeyVal',
+                        styles
+                    )}
+                >
+                    {this.getBraceStart(object_type, expanded)}
+                    {expanded
+                        ? this.getObjectContent(depth, src, {
+                              theme,
+                              iconStyle,
+                              ...rest
+                          })
+                        : this.getEllipsis()}
+                    <span class="brace-row">
+                        <span
+                            style={{
+                                ...Theme(theme, 'brace').style,
+                                paddingLeft: expanded ? '3px' : '0px'
+                            }}
+                        >
+                            {object_type === 'array' ? ']' : '}'}
+                        </span>
+                        {expanded ? null : this.getObjectMetaData(src)}
                     </span>
-                    {expanded ? null : this.getObjectMetaData(src)}
-                </span>
-            </div>,
+                </div>
+            ),
             { dropEffect: 'move' }
         );
     }
@@ -373,7 +381,44 @@ DropTarget(Types.ITEM, spec, connect => ({
 }))(RjvObject);
 */
 
-export default DragSource(Types.ITEM, source, (connect, monitor) => ({
-    connectDragSource: connect.dragSource(),
-    isDragging: monitor.isDragging()
-}))(RjvObject);
+// export default DragSource(Types.ITEM, source, (connect, monitor) => ({
+//     connectDragSource: connect.dragSource(),
+//     isDragging: monitor.isDragging()
+// }))(RjvObject);
+
+/* get dragged */
+const sourceSpec = {
+    beginDrag(props) {
+        return { val: props.value }; // Excel Address
+    }
+};
+
+const sourceCollect = (connect, monitor) => {
+    return {
+        connectDragSource: connect.dragSource(),
+        isDragging: monitor.isDragging()
+    };
+};
+
+/* get dragged onto */
+const targetSpec = {
+    drop(props, monitor, component) {
+        const item = monitor.getItem();
+        console.log('me or my friend?', item);
+    },
+    hover(props, monitor, component) {
+        console.log('yo what you hoverin there for homie?');
+    }
+};
+
+const targetCollect = (connect, monitor) => {
+    return {
+        connectDropTarget: connect.dropTarget(),
+        isOver: monitor.isOver()
+    };
+};
+
+export default _.flow([
+    DragSource(Types.OBJECT, sourceSpec, sourceCollect),
+    DropTarget(Types.OBJECT, targetSpec, targetCollect)
+])(RjvObject);

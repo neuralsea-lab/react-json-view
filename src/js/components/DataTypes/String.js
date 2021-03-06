@@ -7,19 +7,15 @@ import Theme from './../../themes/getStyle';
 
 //attribute store for storing collapsed state
 import AttributeStore from './../../stores/ObjectAttributes';
+import { ItemTypes } from './ItemTypes';
+import { DragSource, useDrop } from 'react-dnd';
 
-import { DragSource, DropTarget, useDrop } from 'react-dnd';
-
-const Types = {
-    ITEM: 'JsonString'
-};
-
-const source = {
+const sourceSpec = {
     beginDrag(props) {
-        /* code here */
+        return { val: props.name, src: props.src };
     },
     endDrag(props) {
-        /* code here */
+        console.log(props);
     }
 };
 
@@ -56,7 +52,12 @@ class String extends React.Component {
         const type_name = 'string';
         const { collapsed } = this.state;
         const { props } = this;
-        const { collapseStringsAfterLength, theme } = props;
+        const {
+            collapseStringsAfterLength,
+            theme,
+            isDragging,
+            connectDragSource
+        } = props;
         let { value } = props;
         let collapsible = toType(collapseStringsAfterLength) === 'integer';
         let style = { style: { cursor: 'default' } };
@@ -73,7 +74,7 @@ class String extends React.Component {
             }
         }
 
-        return (
+        return connectDragSource(
             <div {...Theme(theme, 'string')}>
                 <DataTypeLabel type_name={type_name} {...props} />
                 <span
@@ -88,7 +89,7 @@ class String extends React.Component {
     }
 }
 
-export default DragSource(Types.ITEM, source, (connect, monitor) => ({
+export default DragSource(ItemTypes.STRING, sourceSpec, (connect, monitor) => ({
     connectDragSource: connect.dragSource(),
     isDragging: monitor.isDragging()
 }))(String);

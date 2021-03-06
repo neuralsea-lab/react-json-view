@@ -1,7 +1,7 @@
 import React from 'react';
 import { polyfill } from 'react-lifecycles-compat';
 import { toType } from './../../helpers/util';
-
+import { findDOMNode } from 'react-dom';
 //data type components
 import { JsonObject } from './DataTypes';
 
@@ -10,56 +10,20 @@ import VariableMeta from './../VariableMeta';
 import ArrayGroup from './../ArrayGroup';
 import ObjectName from './../ObjectName';
 
-//attribute store
 import AttributeStore from './../../stores/ObjectAttributes';
 
-//icons
 import { CollapsedIcon, ExpandedIcon } from './../ToggleIcons';
 
-//theme
 import Theme from './../../themes/getStyle';
 
 import { DragSource, DropTarget } from 'react-dnd';
+import { ItemTypes } from './ItemTypes';
 import _ from 'lodash';
 
 //increment 1 with each nested object & array
 const DEPTH_INCREMENT = 1;
 //single indent is 5px
 const SINGLE_INDENT = 5;
-
-const Types = {
-    OBJECT: 'RjvObject'
-};
-
-const source = {
-    beginDrag(props) {
-        /* code here */
-    },
-    endDrag(props) {
-        /* code here */
-    }
-};
-
-const spec = {
-    drop() {
-        return { name: 'RjvObject' };
-    }
-};
-
-// function target(props) {
-//     const [collectedProps, drop] = useDrop(() => ({
-//         accept
-//     }))
-
-//     return <div ref={drop}>Drop Target</div>
-// }
-
-// function collect(connect, monitor) {
-//     return {
-//         connectDragSource: connect.dragSource(),
-//         isDragging: monitor.isDragging()
-//     }
-// }
 
 class RjvObject extends React.Component {
     constructor(props) {
@@ -69,6 +33,21 @@ class RjvObject extends React.Component {
             ...state,
             prevProps: {}
         };
+    }
+
+    componentDidUpdate(prevProps) {
+        if (!prevProps.isOver && this.props.isOver) {
+            // You can use this as enter handler
+        }
+
+        if (prevProps.isOver && !this.props.isOver) {
+            // You can use this as leave handler
+        }
+
+        if (prevProps.isOverCurrent && !this.props.isOverCurrent) {
+            // You can be more specific and track enter/leave
+            // shallowly, not including nested targets
+        }
     }
 
     static getState = props => {
@@ -243,8 +222,6 @@ class RjvObject extends React.Component {
             styles.display = 'inline';
         }
 
-        // const { isDragging, connectDragSource, src } = this.props;
-
         return connectDropTarget(
             connectDragSource(
                 <div
@@ -373,20 +350,6 @@ class JsonVariable {
 
 polyfill(RjvObject);
 
-/*
-https://react-dnd.github.io/react-dnd/docs/api/drop-target
-
-DropTarget(Types.ITEM, spec, connect => ({
-    connectDropTarget: connect.dropTarget(),
-}))(RjvObject);
-*/
-
-// export default DragSource(Types.ITEM, source, (connect, monitor) => ({
-//     connectDragSource: connect.dragSource(),
-//     isDragging: monitor.isDragging()
-// }))(RjvObject);
-
-/* get dragged */
 const sourceSpec = {
     beginDrag(props) {
         return { val: props.name, src: props.src }; // Excel Address
@@ -400,26 +363,66 @@ const sourceCollect = (connect, monitor) => {
     };
 };
 
-/* get dragged onto */
 const targetSpec = {
-    drop(props, monitor, component) {
+    canDrop(props, monitor) {
+        // You can disallow drop based on props or item
         const item = monitor.getItem();
-        console.log(component);
-        console.log('me or my friend?', item); // TODO reparent
+        return true; //  canDropType(item.src, props.target); // TODO
     },
+
     hover(props, monitor, component) {
-        console.log('yo what you hoverin there for homie?');
+        // This is fired very often and lets you perform side effects
+        // in response to the hover. You can't handle enter and leave
+        // here—if you need them, put monitor.isOver() into collect() so you
+        // can use componentDidUpdate() to handle enter/leave.
+
+        // You can access the coordinates if you need them
+        const clientOffset = monitor.getClientOffset();
+        const id = findDOMNode(component).id; // getBoundingClientRect();
+
+        console.log(id);
+
+        // You can check whether we're over a nested drop target
+        const isOnlyThisOne = monitor.isOver({ shallow: true });
+
+        // You will receive hover() even for items for which canDrop() is false
+        const canDrop = monitor.canDrop();
+    },
+
+    drop(props, monitor, component) {
+        if (monitor.didDrop()) {
+            // If you want, you can check whether some nested
+            // target already handled drop
+            return;
+        }
+
+        // Obtain the dragged item
+        const item = monitor.getItem();
+
+        // JsonObject.reparent(item.src, props.target); // TODO
+        console.log(item);
+
+        // You can also do nothing and return a drop result,
+        // which will be available as monitor.getDropResult()
+        // in the drag source's endDrag() method
+        return { moved: true };
     }
 };
 
 const targetCollect = (connect, monitor) => {
     return {
+        // Call this function inside render()
+        // to let React DnD handle the drag events:
         connectDropTarget: connect.dropTarget(),
-        isOver: monitor.isOver()
+        // You can ask the monitor about the current drag state:
+        isOver: monitor.isOver(),
+        isOverCurrent: monitor.isOver({ shallow: true }),
+        canDrop: monitor.canDrop(),
+        itemType: monitor.getItemType()
     };
 };
 
 export default _.flow([
-    DragSource(Types.OBJECT, sourceSpec, sourceCollect),
-    DropTarget(Types.OBJECT, targetSpec, targetCollect)
+    DragSource(ItemTypes.OBJECT, sourceSpec, sourceCollect),
+    DropTarget(ItemTypes.OBJECT, targetSpec, targetCollect)
 ])(RjvObject);

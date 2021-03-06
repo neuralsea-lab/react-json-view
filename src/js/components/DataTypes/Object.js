@@ -353,6 +353,9 @@ polyfill(RjvObject);
 const sourceSpec = {
     beginDrag(props) {
         return { val: props.name, src: props.src }; // Excel Address
+    },
+    endDrag(props) {
+        return { val: props.name, src: props.src }; // Excel Address
     }
 };
 
